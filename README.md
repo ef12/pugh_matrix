@@ -69,4 +69,3 @@ The pugh matrix is a decision making application that should help teams to decid
    - Ensure the Python script is not corrupted or missing parts of the code.
    - For specific errors, refer to the error message to diagnose and fix the issue, or seek assistance from online Python communities or forums.
 
-This manual provides a comprehensive guide for users to understand and use the Pugh Matrix Enhanced application effectively. Ensure to follow the steps and guidelines to utilize the application to its full potential for your decision-making needs.
