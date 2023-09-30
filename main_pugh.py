@@ -17,17 +17,24 @@ class PughMatrixApp:
         self.comparison_selections = {}
         self.menu = tk.Menu(self.root)
         self.root.config(menu=self.menu)
+
         self.filemenu = tk.Menu(self.menu, tearoff=0)
         self.filemenu.add_command(label="New", command=self.new_file)
         self.filemenu.add_command(label="Import from Excel", command=self.import_from_excel)
         self.filemenu.add_command(label="Export to Excel", command=self.export_to_excel)
         self.menu.add_cascade(label="File", menu=self.filemenu)
+
         self.toolsmenu = tk.Menu(self.menu, tearoff=0)
         self.toolsmenu.add_command(label="Add Criteria", command=self.add_multiple_criteria)
         self.toolsmenu.add_command(label="Add Option", command=self.add_multiple_options)
         self.toolsmenu.add_command(label="Pairwise Comparison", command=self.pairwise_comparison, state='disabled')
         self.toolsmenu.add_command(label="Calculate Score", command=self.calculate_score, state='disabled')
         self.menu.add_cascade(label="Tools", menu=self.toolsmenu)
+
+        self.helpmenu = tk.Menu(self.menu, tearoff=0)
+        self.helpmenu.add_command(label="User Manual", command=self.show_user_manual)
+        self.menu.add_cascade(label="Help", menu=self.helpmenu)
+        
         ttk.Label(self.root, text="Weight").grid(row=1, column=1, padx=5, pady=5)
 
     def new_file(self):
@@ -47,7 +54,7 @@ class PughMatrixApp:
             for row in range(2, ws.max_row + 1):
                 criterion = ws.cell(row=row, column=1).value
                 if criterion is None or criterion == "":
-                    break  # stop if criterion is empty
+                    break
                 weight = ws.cell(row=row, column=2).value
                 self.add_criteria_entry(criterion, weight)
                 for col, scale_var in enumerate(self.scale_vars[-1], start=0):
@@ -65,7 +72,6 @@ class PughMatrixApp:
                     self.comparison_selections[(a, b)] = sign
             self.update_weights()
             self.root.geometry("")
-
 
     def export_to_excel(self):
         wb = openpyxl.Workbook()
@@ -197,6 +203,25 @@ class PughMatrixApp:
         for i, score in enumerate(self.scores):
             ttk.Label(self.root, text=f"{score:.2f}", font=('Arial', 14)).grid(row=len(self.criteria_vars) + 2, column=i * 2 + 3, padx=5, pady=5)
         self.root.geometry("")
+
+    def show_user_manual(self):
+        try:
+            with open('README.md', 'r') as file:
+                content = file.read()
+                self.show_manual_window(content)
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred while loading the user manual: {e}")
+
+    def show_manual_window(self, content):
+        manual_window = tk.Toplevel(self.root)
+        manual_window.title("User Manual")
+        text_widget = tk.Text(manual_window, wrap='word', padx=10, pady=10)
+        text_widget.insert(tk.END, content)
+        text_widget.config(state=tk.DISABLED)  
+        scroll_bar = tk.Scrollbar(manual_window, command=text_widget.yview)
+        text_widget.config(yscrollcommand=scroll_bar.set)
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
 
 if __name__ == "__main__":
     root = tk.Tk()
