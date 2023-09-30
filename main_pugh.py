@@ -46,11 +46,14 @@ class PughMatrixApp:
                 self.add_option_column(option)
             for row in range(2, ws.max_row + 1):
                 criterion = ws.cell(row=row, column=1).value
+                if criterion is None or criterion == "":
+                    break  # stop if criterion is empty
                 weight = ws.cell(row=row, column=2).value
                 self.add_criteria_entry(criterion, weight)
                 for col, scale_var in enumerate(self.scale_vars[-1], start=0):
                     value = ws.cell(row=row, column=col + 3).value
-                    scale_var.set(value)
+                    if value is not None:
+                        scale_var.set(float(value))
             comparison_ws = wb['Pairwise Comparison']
             for row in range(1, comparison_ws.max_row + 1):
                 a = comparison_ws.cell(row=row, column=1).value
@@ -62,6 +65,7 @@ class PughMatrixApp:
                     self.comparison_selections[(a, b)] = sign
             self.update_weights()
             self.root.geometry("")
+
 
     def export_to_excel(self):
         wb = openpyxl.Workbook()
@@ -80,7 +84,7 @@ class PughMatrixApp:
             comparison_ws.cell(row=row, column=2, value=b)
             comparison_ws.cell(row=row, column=3, value=a[1])
         for i, score in enumerate(self.scores):
-            ws.cell(row=len(self.criteria_vars) + 3, column=i * 2 + 2, value=score)
+            ws.cell(row=len(self.criteria_vars) + 3, column=i + 3, value=score)
         filepath = filedialog.asksaveasfilename(defaultextension=".xlsx")
         if filepath:
             wb.save(filepath)
@@ -191,7 +195,7 @@ class PughMatrixApp:
         self.scores = [sum(var.get() * weights[criterion_var.get()] for var, criterion_var in zip(scale_vars, self.criteria_vars)) 
                   for scale_vars in zip(*self.scale_vars)]
         for i, score in enumerate(self.scores):
-            ttk.Label(self.root, text=f"{score:.2f}", font=('Arial', 14)).grid(row=len(self.criteria_vars) + 2, column=i * 2 + 2, columnspan=2, padx=5, pady=5)
+            ttk.Label(self.root, text=f"{score:.2f}", font=('Arial', 14)).grid(row=len(self.criteria_vars) + 2, column=i * 2 + 3, padx=5, pady=5)
         self.root.geometry("")
 
 if __name__ == "__main__":
